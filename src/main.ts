@@ -1,6 +1,6 @@
 const users = document.querySelector(".users") as HTMLDivElement;
-const inputs = document.querySelector(".inputs") as HTMLDivElement;
 const loading = document.createElement("p") as HTMLParagraphElement;
+type addAndEdit = "edit" | "add";
 
 loading.classList =
   "flex items-center justify-center text-[44px] mt-[200px] font-bold  ";
@@ -49,6 +49,7 @@ getUser().then((userss) => {
 
   function createUsers() {
     const allUsers = document.createElement("div") as HTMLDivElement;
+    const addBtn = document.createElement("button") as HTMLButtonElement;
     const menuList = document.createElement("div") as HTMLDivElement;
     const menuN = document.createElement("div");
     const menuE = document.createElement("div");
@@ -57,6 +58,9 @@ getUser().then((userss) => {
     const menuC = document.createElement("div");
     const menuB = document.createElement("div");
 
+    allUsers.classList = "flex flex-col items-end justify-end";
+    addBtn.classList =
+      "w-[40px] px-8 py-4 bg-blue-700 flex items-center justify-center";
     menuList.classList = "flex items-center justify-start bg-gray-100";
     menuN.classList =
       "flex items-center justify-start p-4 border border-[#A9A9A9] w-[200px] text-[14px]";
@@ -71,6 +75,7 @@ getUser().then((userss) => {
     menuB.classList =
       "flex items-center justify-start p-4 border border-[#A9A9A9] w-[200px] text-[14px]";
 
+    addBtn.textContent = "Add";
     menuN.textContent = "Name";
     menuE.textContent = "Email";
     menuW.textContent = "Website";
@@ -79,11 +84,10 @@ getUser().then((userss) => {
     menuB.textContent = "Action";
 
     menuList.append(menuN, menuE, menuA, menuW, menuC, menuB);
-
+    allUsers.appendChild(addBtn);
     allUsers.append(menuList);
 
     for (let i = 0; i < newusers.length; i++) {
-      // console.log(item1);
       let divUsers = document.createElement("div") as HTMLDivElement;
       let divBtns = document.createElement("div") as HTMLDivElement;
       let divEdit = document.createElement("button") as HTMLButtonElement;
@@ -118,13 +122,17 @@ getUser().then((userss) => {
       }
       divUsers.appendChild(divBtns);
       allUsers.appendChild(divUsers);
-      divEdit.onclick = () => createModal();
+      divEdit.onclick = () => createModal("edit");
       divDelete.onclick = () => {
         newusers.splice(i, 1);
         createUsers();
       };
 
-      function createModal() {
+      addBtn.onclick = () => {
+        createModal("add");
+      };
+
+      function createModal(type: addAndEdit) {
         // Overlay (fonni qoraytiruvchi div)
         const overlay = document.createElement("div");
         overlay.className =
@@ -167,6 +175,20 @@ getUser().then((userss) => {
         inputAddress.classList = "border border-white rounded-[15px] p-2 m-2";
         inputCompany.classList = "border border-white rounded-[15px] p-2 m-2";
 
+        if (type === "edit") {
+          inputName.value = newusers[i].name;
+          inputEmail.value = newusers[i].email;
+          inputWebsite.value = newusers[i].website;
+          inputAddress.value = newusers[i].address;
+          inputCompany.value = newusers[i].company;
+        } else if (type === "add") {
+          // inputName.value = "";
+          // inputEmail.value = "";
+          // inputWebsite.value = "";
+          // inputAddress.value = "";
+          // inputCompany.value = "";
+        }
+
         inputs.append(
           inputName,
           inputEmail,
@@ -201,34 +223,46 @@ getUser().then((userss) => {
           ) {
             alert("Inputga hechnarsa kiritmagansiz !!!");
           } else {
-            for (let item2 in newusers[i]) {
-              const key = item2;
-              switch (key) {
-                case "name":
-                  newusers[i][key] = inputName.value;
-                  break;
-                // console.log("N",divName);
-                case "email":
-                  newusers[i][key] = inputEmail.value;
-                  break;
-                // console.log("E",divEmail);
-                case "website":
-                  newusers[i][key] = inputWebsite.value;
-                  break;
-                // console.log("W",divWebsite);
-                case "address":
-                  newusers[i][key] = inputAddress.value;
-                  break;
-                // console.log("A",divAddress);
-                case "company":
-                  newusers[i][key] = inputCompany.value;
-                  break;
-                // console.log("C",divCompany);
+            if (type === "edit") {
+              for (let item2 in newusers[i]) {
+                const key = item2;
+                switch (key) {
+                  case "name":
+                    newusers[i][key] = inputName.value;
+                    break;
+                  // console.log("N",divName);
+                  case "email":
+                    newusers[i][key] = inputEmail.value;
+                    break;
+                  // console.log("E",divEmail);
+                  case "website":
+                    newusers[i][key] = inputWebsite.value;
+                    break;
+                  // console.log("W",divWebsite);
+                  case "address":
+                    newusers[i][key] = inputAddress.value;
+                    break;
+                  // console.log("A",divAddress);
+                  case "company":
+                    newusers[i][key] = inputCompany.value;
+                    break;
+                  // console.log("C",divCompany);
+                }
               }
+              document.body.removeChild(overlay);
+              createUsers();
+            } else if (type === "add") {
+              const obj: any = {};
+              obj.name = inputName.value;
+              obj.email = inputEmail.value;
+              obj.website = inputWebsite.value;
+              obj.address = inputAddress.value;
+              obj.company = inputCompany.value;
+
+              newusers.push(obj);
+              document.body.removeChild(overlay);
+              createUsers();
             }
-            // alert("Account deactivated!");
-            document.body.removeChild(overlay);
-            createUsers();
           }
         };
 
@@ -246,6 +280,7 @@ getUser().then((userss) => {
         document.body.appendChild(overlay);
       }
     }
+
     users.innerHTML = "";
     users.appendChild(allUsers);
   }
@@ -253,7 +288,6 @@ getUser().then((userss) => {
   setTimeout(() => {
     users.removeChild(loading);
     createUsers();
-  }, 3000);
+  }, 100);
 });
 
-console.log(newusers);
